@@ -60,7 +60,6 @@ def main():
 
         player.update()
 
-
         redraw_window(player)
 
 if __name__ == "__main__":
