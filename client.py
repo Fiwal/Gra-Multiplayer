@@ -62,5 +62,6 @@ def main():
 
         redraw_window(player)
 
+
 if __name__ == "__main__":
     main()
