@@ -1,16 +1,11 @@
 import socket
 from _thread import *
+import pickle
+
+from player import Player
 
 
-def read_pos(text):
-    text = text.split(",")
-    return int(text[0]), int(text[1])
-
-def make_pos(tup):
-    return str(tup[0]) + "," + str(tup[1])
-
-
-server = "192.168.1.85"
+server = "192.168.1.123"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -25,31 +20,32 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, server Started")
 
-positions = [(0, 0), (100, 100)]
+players = [Player(0, 0, 50, 50, (255, 0, 0)), Player(100, 100, 50, 50, (0, 0, 255))]
 
 def threaded_client(conn, playerNum):
-    conn.send(str.encode(make_pos(positions[playerNum])))
-    print(str.encode(make_pos(positions[playerNum])))
+
+    conn.send(pickle.dumps(players[playerNum]))
     reply = ""
+
     while True:
 
         try:
-            data = read_pos(conn.recv(2048).decode())
-            positions[playerNum] = data
+            data = pickle.loads(conn.recv(2048))
+            players[playerNum] = data
 
             if not data:
                 print("Disconnected")
                 break
             else:
                 if playerNum == 1:
-                    reply = positions[0]
+                    reply = players[0]
                 else:
-                    reply = positions[1]
+                    reply = players[1]
 
                 print(f"Received: {reply}")
                 print(f"Sending: {reply}")
 
-            conn.sendall(str.encode(make_pos(reply)))
+            conn.sendall(pickle.dumps(reply))
 
         except:
             break
@@ -57,7 +53,9 @@ def threaded_client(conn, playerNum):
     print("Lost connection")
     conn.close()
 
+
 currentPlayer = 0
+
 
 while True:
     conn, addr = s.accept()
