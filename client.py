@@ -1,5 +1,4 @@
 import pygame
-from pygame.locals import *
 from pygame.constants import *
 from network import Network
 
@@ -12,10 +11,11 @@ pygame.display.set_caption("Client")
 clientNumber = 0
 
 
-def redraw_window(p, p2):
+def redraw_window(players):
     screen.fill((0, 0, 0))
-    p.draw(screen)
-    p2.draw(screen)
+    for player in players:
+        player.draw(screen)
+
     pygame.display.update()
     clock.tick(60)
 
@@ -24,6 +24,8 @@ def main():
     run = True
     n = Network()
     p = n.get_player()
+    all_players = [p]
+
 
 
     while run:
@@ -43,10 +45,8 @@ def main():
             p.move(2, 0)
 
         p.update()
-
-        p2 = n.send(p)
-
-        redraw_window(p, p2)
+        all_players = n.send(p)
+        redraw_window(all_players)
 
 
 if __name__ == "__main__":
